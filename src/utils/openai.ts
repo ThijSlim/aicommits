@@ -1,6 +1,6 @@
 import https from 'https';
 import type { ClientRequest, IncomingMessage } from 'http';
-import type { CreateChatCompletionRequest, CreateChatCompletionResponse } from 'openai';
+import type { ChatCompletionRequestMessage, CreateChatCompletionRequest, CreateChatCompletionResponse } from 'openai';
 import { type TiktokenModel } from '@dqbd/tiktoken';
 import createHttpsProxyAgent from 'https-proxy-agent';
 import { KnownError } from './error.js';
@@ -100,7 +100,53 @@ const sanitizeMessage = (message: string) => message.trim().replace(/[\n\r]/g, '
 
 const deduplicateMessages = (array: string[]) => Array.from(new Set(array));
 
-const getPrompt = (locale: string, diff: string) => `Write a git commit message in present tense for the following diff without prefacing it with anything. Do not be needlessly verbose and make sure the answer is concise and to the point. The response must be in the language ${locale}:\n${diff}`;
+const getBasePrompt = (locale: string) => `Write an insightful but concise Git commit message in a complete sentence in present tense for the diff that I provide you without prefacing it with anything, the response must be in the language ${locale}`;
+
+const getCommitMessageFormatPrompt = (useConventionalCommits: boolean) => {
+	const commitTitleParts = [];
+
+	if (useConventionalCommits) {
+		commitTitleParts.push('<conventional commits type>(<optional scope of the change>):');
+	}
+
+	commitTitleParts.push('<commit message>');
+
+	return commitTitleParts.join(' ');
+};
+
+const getExtraContextForConventionalCommits = () => {
+	// Based on https://medium.com/neudesic-innovation/conventional-commits-a-better-way-78d6785c2e08
+	const conventionalCommitTypes: Record<string, string> = {
+		/*
+			Commented out feat: and fix: because they are too common and
+			will cause the model to generate them too often.
+		*/
+		// feat: 'The commit implements a new feature for the application.',
+		// fix: 'The commit fixes a defect in the application.',
+		build: 'alters the build system or external dependencies of the product',
+		chore: 'includes a technical or preventative maintenance task',
+		ci: 'continuous integration or continuous delivery scripts or configuration files',
+		deprecate: 'deprecates existing functionality',
+		docs: 'changes to README files and markdown (*.md) files',
+		perf: 'improve the performance of algorithms or general execution',
+		remove: 'removes a feature or dependency',
+		refactor: 'code refactoring',
+		revert: 'reverts one or more commits',
+		security: 'improves security',
+		style: 'updates or reformats the style of the source code',
+		test: 'changes to the suite of automated tests',
+		change: 'changes the implementation of an existing feature',
+	};
+
+	let conventionalCommitDescription = '';
+	// eslint-disable-next-line guard-for-in
+	for (const key in conventionalCommitTypes) {
+		const value = conventionalCommitTypes[key];
+		conventionalCommitDescription += `${key}: ${value}\n`;
+	}
+
+	return `Choose the primary used conventional commit type from the list below based on the git diff:\n${conventionalCommitDescription}`;
+};
 
 export const generateCommitMessage = async (
 	apiKey: string,
@@ -109,30 +155,46 @@ export const generateCommitMessage = async (
 	diff: string,
 	completions: number,
 	timeout: number,
+	useConventionalCommits: boolean,
 	proxy?: string,
 ) => {
-	const prompt = getPrompt(locale, diff);
+	const basePrompt = getBasePrompt(locale);
+
+	const commitMessageFormatPrompt = getCommitMessageFormatPrompt(
+		useConventionalCommits,
+	);
+
+	const conventionalCommitsExtraContext = useConventionalCommits
+		? getExtraContextForConventionalCommits()
+		: '';
+
+	const completionMessages: ChatCompletionRequestMessage[] = [
+		{
+			role: 'system',
+			content: `${basePrompt}\n${commitMessageFormatPrompt}`,
+		},
+		{
+			role: 'assistant',
+			content: conventionalCommitsExtraContext,
+		},
+		{
+			role: 'user',
+			content: diff,
+		},
+	];
 
 	try {
-		const completion = await createChatCompletion(
-			apiKey,
-			{
-				model,
-				messages: [{
-					role: 'user',
-					content: prompt,
-				}],
-				temperature: 0.7,
-				top_p: 1,
-				frequency_penalty: 0,
-				presence_penalty: 0,
-				max_tokens: 200,
-				stream: false,
-				n: completions,
-			},
-			timeout,
-			proxy,
-		);
+		const completion = await createChatCompletion(apiKey, {
+			model,
+			messages: completionMessages,
+			temperature: 0.7,
+			top_p: 1,
+			frequency_penalty: 0,
+			presence_penalty: 0,
+			max_tokens: 200,
+			stream: false,
+			n: completions,
+		}, timeout, proxy);
 
 		return deduplicateMessages(
 			completion.choices

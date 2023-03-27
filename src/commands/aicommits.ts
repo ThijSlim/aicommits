@@ -59,6 +59,7 @@ export default async (
 			staged.diff,
 			config.generate,
 			config.timeout,
+			config.conventional,
 			config.proxy,
 		);
 	} finally {
