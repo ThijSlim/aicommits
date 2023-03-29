@@ -98,7 +98,7 @@ type RawConfig = {
 	[key in ConfigKeys]?: string;
 };
 
-type ValidConfig = {
+export type ValidConfig = {
 	[Key in ConfigKeys]: ReturnType<typeof configParsers[Key]>;
 };
 
