@@ -4,6 +4,7 @@ import type { ChatCompletionRequestMessage, CreateChatCompletionRequest, CreateC
 import { type TiktokenModel } from '@dqbd/tiktoken';
 import createHttpsProxyAgent from 'https-proxy-agent';
 import { KnownError } from './error.js';
+import { CommitStandard } from './config.js';
 
 const httpsPost = async (
 	hostname: string,
@@ -102,10 +103,10 @@ const deduplicateMessages = (array: string[]) => Array.from(new Set(array));
 
 const getBasePrompt = (locale: string) => `Write an insightful but concise Git commit message in a complete sentence in present tense for the diff that I provide you without prefacing it with anything, the response must be in the language ${locale}`;
 
-const getCommitMessageFormatPrompt = (useConventionalCommits: boolean) => {
+const getCommitMessageFormatPrompt = (standard: CommitStandard) => {
 	const commitTitleParts = [];
 
-	if (useConventionalCommits) {
+	if (standard === CommitStandard.Conventional) {
 		commitTitleParts.push('<conventional commits type>(<optional scope of the change>):');
 	}
 
@@ -150,17 +151,17 @@ export const generateCommitMessage = async (
 	locale: string,
 	diff: string,
 	completions: number,
+	standard: CommitStandard,
 	timeout: number,
-	useConventionalCommits: boolean,
 	proxy?: string,
 ) => {
 	const basePrompt = getBasePrompt(locale);
 
 	const commitMessageFormatPrompt = getCommitMessageFormatPrompt(
-		useConventionalCommits,
+		standard,
 	);
 
-	const conventionalCommitsExtraContext = useConventionalCommits
+	const conventionalCommitsExtraContext = standard === CommitStandard.Conventional
 		? getExtraContextForConventionalCommits()
 		: '';
 
