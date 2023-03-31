@@ -106,7 +106,7 @@ const getBasePrompt = (locale: string) => `Write an insightful but concise Git c
 const getCommitMessageFormatPrompt = (standard: CommitStandard) => {
 	const commitTitleParts = [];
 
-	if (standard === CommitStandard.Conventional) {
+	if (standard === 'conventional') {
 		commitTitleParts.push('<conventional commits type>(<optional scope of the change>):');
 	}
 
@@ -161,7 +161,7 @@ export const generateCommitMessage = async (
 		standard,
 	);
 
-	const conventionalCommitsExtraContext = standard === CommitStandard.Conventional
+	const conventionalCommitsExtraContext = standard === 'conventional'
 		? getExtraContextForConventionalCommits()
 		: '';
 
