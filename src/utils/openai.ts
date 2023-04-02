@@ -4,7 +4,7 @@ import type { ChatCompletionRequestMessage, CreateChatCompletionRequest, CreateC
 import { type TiktokenModel } from '@dqbd/tiktoken';
 import createHttpsProxyAgent from 'https-proxy-agent';
 import { KnownError } from './error.js';
-import { CommitType } from './config.js';
+import type { CommitType } from './config.js';
 
 const httpsPost = async (
 	hostname: string,
@@ -125,8 +125,6 @@ const getExtraContextForConventionalCommits = () => {
 			Commented out because they are too common and
 			will cause the model to generate them too often.
 		*/
-		// feat: 'A new feature',
-		// fix: 'A bug fix',
 		docs: 'Documentation only changes',
 		style:
 			'Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)',
@@ -137,6 +135,8 @@ const getExtraContextForConventionalCommits = () => {
 		ci: 'Changes to our CI configuration files and scripts',
 		chore: "Other changes that don't modify src or test files",
 		revert: 'Reverts a previous commit',
+		feat: 'A new feature',
+		fix: 'A bug fix',
 	};
 
 	return `Choose a type from the type-to-description JSON below that best describes the git diff:\n${JSON.stringify(conventionalCommitTypes, null, 2)}`;
