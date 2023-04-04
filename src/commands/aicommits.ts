@@ -42,7 +42,6 @@ export default async (
 		staged.files.map(file => `     ${file}`).join('\n')
 	}`);
 
-	console.log('TYPE:', commitType);
 	const { env } = process;
 	const config = await getConfig({
 		OPENAI_KEY: env.OPENAI_KEY || env.OPENAI_API_KEY,
