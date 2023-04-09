@@ -1,0 +1,28 @@
+import React from 'react';
+<<<<<<< HEAD
+import { useState } from 'react';
+import CustomComponent from './CustomComponent';
+=======
+import { useEffect } from 'react';
+import AnotherComponent from './AnotherComponent';
+>>>>>>> other_branch
+
+export const MyFunction = (param1, param2, newParam) => {
+  // Perform some operations
+  return (
+    <CustomComponent>
+      <p>{param1}</p>
+      <p>{param2}</p>
+      <p>{newParam}</p>
+    </CustomComponent>
+  );
+};
+
+export default function MyComponent() {
+  const result = MyFunction("Hello", "World", "New Parameter");
+  return (
+    <div>
+      {result}
+    </div>
+  );
+}

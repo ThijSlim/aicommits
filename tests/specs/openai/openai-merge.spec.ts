@@ -28,6 +28,14 @@ export default testSuite(({ describe }) => {
 			expect(removeTabsAndEnters(commitMessage)).toEqual(removeTabsAndEnters(merged));
 		});
 
+		await test('Merge files', async () => {
+			const { mergeConflict, merged } = await readMergeConflictFile('react-component');
+
+			const commitMessage = await runMergeChanges(mergeConflict);
+
+			expect(removeTabsAndEnters(commitMessage)).toEqual(removeTabsAndEnters(merged));
+		});
+
 		async function runMergeChanges(mergeConflictFileContent: string): Promise<string> {
 			const resolvedFile = await autoMergeFile(OPENAI_KEY!, 'gpt-3.5-turbo', mergeConflictFileContent);
 

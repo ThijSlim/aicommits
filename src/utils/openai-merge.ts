@@ -93,7 +93,10 @@ const createChatCompletion = async (
 	return JSON.parse(data) as CreateChatCompletionResponse;
 };
 
-const getBasePrompt = () => 'I want you to auto merge the changes in the file I give to you and generate only the code snipper without explaination.';
+const getBasePrompt = () => `
+I want you to act as a git-cli.
+I will give you a file and you will merge preferring our changes.
+Generate only the code snipper without explaination.`;
 
 const sanitizeMessage = (message: string) => message.trim().replace(/[\n\r]/g, '').replace(/(\w)\.$/, '$1');
 
@@ -113,6 +116,10 @@ export const autoMergeFile = async (
 		{
 			role: 'user',
 			content: fileContent,
+		},
+		{
+			role: 'system',
+			content: 'Fix the the code for the snippet that was generated. Generate only the code snipper without explaination.',
 		},
 	];
 
