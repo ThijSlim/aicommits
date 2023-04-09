@@ -3,6 +3,7 @@ import { description, version } from '../package.json';
 import aicommits from './commands/aicommits.js';
 import prepareCommitMessageHook from './commands/prepare-commit-msg-hook.js';
 import configCommand from './commands/config.js';
+import mergeCommand from './commands/merge.js';
 import hookCommand, { isCalledFromGitHook } from './commands/hook.js';
 
 const rawArgv = process.argv.slice(2);
@@ -40,6 +41,7 @@ cli(
 		commands: [
 			configCommand,
 			hookCommand,
+			mergeCommand,
 		],
 
 		help: {

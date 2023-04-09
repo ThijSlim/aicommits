@@ -59,3 +59,19 @@ export const getStagedDiff = async (excludeFiles?: string[]) => {
 };
 
 export const getDetectedMessage = (files: string[]) => `Detected ${files.length.toLocaleString()} staged file${files.length > 1 ? 's' : ''}`;
+
+export const getUnresolvedMergeFiles = async () : Promise<string[]> => {
+	const diffCached = ['diff', '--name-only', '--diff-filter=U', '--relative'];
+	const { stdout: files } = await execa(
+		'git',
+		[
+			...diffCached,
+		],
+	);
+
+	if (!files) {
+		return [];
+	}
+
+	return files.split('\n');
+};
