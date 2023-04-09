@@ -95,8 +95,8 @@ const createChatCompletion = async (
 
 const getBasePrompt = () => `
 I want you to act as a git-cli.
-I will give you a file and you will merge preferring our changes.
-Generate only the code snipper without explaination.`;
+I will give you file content and you will merge the conflicts preferring our changes.
+Generate only the code snippet without explaination.`;
 
 const sanitizeMessage = (message: string) => message.trim().replace(/[\n\r]/g, '').replace(/(\w)\.$/, '$1');
 
@@ -119,7 +119,7 @@ export const autoMergeFile = async (
 		},
 		{
 			role: 'system',
-			content: 'Fix the the code for the snippet that was generated. Generate only the code snipper without explaination.',
+			content: 'Fix the the code without adding new code. Generate only the code snippet without explaination.',
 		},
 	];
 
@@ -143,7 +143,6 @@ export const autoMergeFile = async (
 				top_p: 1,
 				frequency_penalty: 0,
 				presence_penalty: 0,
-				max_tokens: 200,
 				stream: false,
 			},
 			proxy,

@@ -1,6 +1,7 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CustomComponent from './CustomComponent';
+import AnotherComponent from './AnotherComponent';
 
 export const MyFunction = (param1, param2, newParam) => {
   // Perform some operations
