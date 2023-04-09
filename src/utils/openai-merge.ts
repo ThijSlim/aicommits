@@ -93,7 +93,9 @@ const createChatCompletion = async (
 	return JSON.parse(data) as CreateChatCompletionResponse;
 };
 
-const getBasePrompt = () => 'I want you to auto merge the changes in the file I give to you and prefer the current changes';
+const getBasePrompt = () => 'I want you to auto merge the changes in the file I give to you and generate only the code snipper without explaination.';
+
+const sanitizeMessage = (message: string) => message.trim().replace(/[\n\r]/g, '').replace(/(\w)\.$/, '$1');
 
 export const autoMergeFile = async (
 	apiKey: string,
@@ -140,7 +142,9 @@ export const autoMergeFile = async (
 			proxy,
 		);
 
-		return completion.choices[0].message?.content ?? '';
+		console.log(completion.choices[0].message?.content);
+
+		return sanitizeMessage(completion.choices[0].message?.content ?? '');
 	} catch (error) {
 		const errorAsAny = error as any;
 		if (errorAsAny.code === 'ENOTFOUND') {
