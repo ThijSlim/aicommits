@@ -205,9 +205,10 @@ export const generateCommitMessage = async (
     return deduplicateMessages(
       completion.choices
         .filter((choice) => choice.message?.content)
-        .map((choice) => sanitizeMessage(choice.message!.content))
+        .map((choice) => sanitizeMessage(choice.message?.content ?? ""))
     );
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const errorAsAny = error as any;
     if (errorAsAny.code === "ENOTFOUND") {
       throw new KnownError(

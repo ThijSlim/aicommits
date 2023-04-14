@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  assertOpenAiToken,
-  createFixture,
-  createGit,
-  files,
-} from "../../utils.js";
+import { createFixture, createGit, files } from "../../utils.js";
 
 if (process.platform === "win32") {
   // https://github.com/nodejs/node/issues/31409
@@ -13,7 +8,9 @@ if (process.platform === "win32") {
   );
 }
 
-assertOpenAiToken();
+if (process.env.OPENAI_KEY) {
+  throw new Error("OPENAI_KEY is not defined");
+}
 
 describe("CLI", async () => {
   it.concurrent("Excludes files", async () => {
@@ -42,11 +39,11 @@ describe("CLI", async () => {
     await git("add", ["data.json"]);
 
     const committing = aicommits();
-    committing.stdout!.on("data", (buffer: Buffer) => {
+    committing.stdout?.on("data", (buffer: Buffer) => {
       const stdout = buffer.toString();
       if (stdout.match("└")) {
-        committing.stdin!.write("y");
-        committing.stdin!.end();
+        committing.stdin?.write("y");
+        committing.stdin?.end();
       }
     });
 
@@ -82,11 +79,11 @@ describe("CLI", async () => {
       expect(statusBefore.stdout).toBe(" M data.json");
 
       const committing = aicommits(["--all"]);
-      committing.stdout!.on("data", (buffer: Buffer) => {
+      committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
-          committing.stdin!.write("y");
-          committing.stdin!.end();
+          committing.stdin?.write("y");
+          committing.stdin?.end();
         }
       });
 
@@ -118,11 +115,11 @@ describe("CLI", async () => {
     const committing = aicommits(["--generate", "2"]);
 
     // Hit enter to accept the commit message
-    committing.stdout!.on("data", function onPrompt(buffer: Buffer) {
+    committing.stdout?.on("data", function onPrompt(buffer: Buffer) {
       const stdout = buffer.toString();
       if (stdout.match("└")) {
-        committing.stdin!.write("\r");
-        committing.stdin!.end();
+        committing.stdin?.write("\r");
+        committing.stdin?.end();
         committing.stdout?.off("data", onPrompt);
       }
     });
@@ -161,11 +158,11 @@ describe("CLI", async () => {
 
       const committing = aicommits();
 
-      committing.stdout!.on("data", (buffer: Buffer) => {
+      committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
-          committing.stdin!.write("y");
-          committing.stdin!.end();
+          committing.stdin?.write("y");
+          committing.stdin?.end();
         }
       });
 
@@ -199,11 +196,11 @@ describe("CLI", async () => {
 
       const committing = aicommits();
 
-      committing.stdout!.on("data", (buffer: Buffer) => {
+      committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
-          committing.stdin!.write("y");
-          committing.stdin!.end();
+          committing.stdin?.write("y");
+          committing.stdin?.end();
         }
       });
 
@@ -236,11 +233,11 @@ describe("CLI", async () => {
       // Generate flag should override generate config
       const committing = aicommits(["--type", "conventional"]);
 
-      committing.stdout!.on("data", (buffer: Buffer) => {
+      committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
-          committing.stdin!.write("y");
-          committing.stdin!.end();
+          committing.stdin?.write("y");
+          committing.stdin?.end();
         }
       });
 
@@ -272,11 +269,11 @@ describe("CLI", async () => {
 
       const committing = aicommits(["--type", ""]);
 
-      committing.stdout!.on("data", (buffer: Buffer) => {
+      committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
-          committing.stdin!.write("y");
-          committing.stdin!.end();
+          committing.stdin?.write("y");
+          committing.stdin?.end();
         }
       });
 
@@ -310,11 +307,11 @@ describe("CLI", async () => {
         reject: false,
       });
 
-      committing.stdout!.on("data", (buffer: Buffer) => {
+      committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
-          committing.stdin!.write("y");
-          committing.stdin!.end();
+          committing.stdin?.write("y");
+          committing.stdin?.end();
         }
       });
 
@@ -337,11 +334,11 @@ describe("CLI", async () => {
 
       const committing = aicommits();
 
-      committing.stdout!.on("data", (buffer: Buffer) => {
+      committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
-          committing.stdin!.write("y");
-          committing.stdin!.end();
+          committing.stdin?.write("y");
+          committing.stdin?.end();
         }
       });
 
@@ -371,11 +368,11 @@ describe("CLI", async () => {
         },
       });
 
-      committing.stdout!.on("data", (buffer: Buffer) => {
+      committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
-          committing.stdin!.write("y");
-          committing.stdin!.end();
+          committing.stdin?.write("y");
+          committing.stdin?.end();
         }
       });
 

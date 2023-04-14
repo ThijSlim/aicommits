@@ -4,7 +4,11 @@ import { fileURLToPath } from "url";
 import { describe, it, beforeAll, expect } from "vitest";
 import { autoMergeFile } from "../../../src/utils/openai-merge.js";
 
-const { OPENAI_KEY } = process.env;
+if (process.env.OPENAI_KEY) {
+  throw new Error("OPENAI_KEY is not defined");
+}
+
+const OPENAI_KEY: string = process.env.OPENAI_KEY ?? "";
 
 describe("Merge", () => {
   beforeAll(async () => {
@@ -55,7 +59,7 @@ describe("Merge", () => {
     mergeConflictFileContent: string
   ): Promise<string> {
     const resolvedFile = await autoMergeFile(
-      OPENAI_KEY!,
+      OPENAI_KEY,
       "gpt-3.5-turbo",
       mergeConflictFileContent
     );

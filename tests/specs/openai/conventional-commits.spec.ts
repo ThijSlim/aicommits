@@ -6,7 +6,11 @@ import { describe, it, beforeAll, expect } from "vitest";
 import { generateCommitMessage } from "../../../src/utils/openai.js";
 import type { ValidConfig } from "../../../src/utils/config.js";
 
-const { OPENAI_KEY } = process.env;
+if (process.env.OPENAI_KEY) {
+  throw new Error("OPENAI_KEY is not defined");
+}
+
+const OPENAI_KEY: string = process.env.OPENAI_KEY ?? "";
 
 describe("Conventional Commits", () => {
   beforeAll(async () => {
@@ -16,7 +20,6 @@ describe("Conventional Commits", () => {
         "Skipping tests on Windows because Node.js spawn cant open TTYs"
       );
 
-      
       return;
     }
 
@@ -187,7 +190,7 @@ describe("Conventional Commits", () => {
     } as ValidConfig;
 
     const commitMessages = await generateCommitMessage(
-      OPENAI_KEY!,
+      OPENAI_KEY,
       "gpt-3.5-turbo",
       config.locale,
       gitDiff,

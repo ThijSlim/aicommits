@@ -43,8 +43,9 @@ export default () =>
         config.OPENAI_KEY,
         config.model,
         config.locale,
-        staged!.diff,
+        staged.diff,
         config.generate,
+        config.type,
         config.timeout,
         config.proxy
       );
