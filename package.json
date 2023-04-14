@@ -1,5 +1,5 @@
 {
-  "name": "gitai",
+  "name": "git-ai",
   "version": "0.0.0-semantic-release",
   "description": "Writes your git commit messages for you with AI",
   "keywords": [
@@ -16,7 +16,7 @@
   ],
   "bin": {
     "gitai": "./dist/cli.mjs",
-    "aic": "./dist/cli.mjs"
+    "gai": "./dist/cli.mjs"
   },
   "scripts": {
     "prepare": "simple-git-hooks",
