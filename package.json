@@ -9,7 +9,7 @@
   ],
   "license": "MIT",
   "repository": "ThijSlim/gitai",
-  "author": "Hassan El Mghari (@nutlope)",
+  "author": "Thijs Limmen (@thijslim)",
   "type": "module",
   "files": [
     "dist"
