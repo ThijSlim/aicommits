@@ -149,7 +149,7 @@ describe("Conventional Commits", () => {
       const commitMessage = await runGenerateCommitMessage(gitDiff);
 
       // should match "chore:" or "chore(<style>):"
-      // Sometimes it generates build
+      // Sometimes it generates build:
       expect(commitMessage).toMatch(/((chore|build)(\(.*\))?):/);
     }
   );
