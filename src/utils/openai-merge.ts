@@ -159,8 +159,6 @@ export const autoMergeFile = async (
       proxy
     );
 
-    console.log(completion.choices[0].message?.content);
-
     return sanitizeMessage(completion.choices[0].message?.content ?? "");
   } catch (error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

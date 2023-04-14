@@ -37,7 +37,6 @@ describe("Git hook", () => {
     });
 
     const { stdout: commitMessage } = await git("log", ["--pretty=%B"]);
-    console.log("Committed with:", commitMessage);
     expect(commitMessage.startsWith("# ")).not.toBe(true);
 
     await fixture.rm();

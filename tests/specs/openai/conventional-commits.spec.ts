@@ -42,7 +42,6 @@ describe("Conventional Commits", () => {
       });
 
       expect(commitMessage).toMatch(japaneseConventionalCommitPattern);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -55,7 +54,6 @@ describe("Conventional Commits", () => {
 
       // should match "feat:" or "feat(<scope>):"
       expect(commitMessage).toMatch(/(feat(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -68,7 +66,6 @@ describe("Conventional Commits", () => {
 
       // should match "refactor:" or "refactor(<scope>):"
       expect(commitMessage).toMatch(/(refactor(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -81,7 +78,6 @@ describe("Conventional Commits", () => {
 
       // should match "test:" or "test(<scope>):"
       expect(commitMessage).toMatch(/(test(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -96,7 +92,6 @@ describe("Conventional Commits", () => {
 
       // should match "build:" or "build(<scope>):"
       expect(commitMessage).toMatch(/(build(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -110,7 +105,6 @@ describe("Conventional Commits", () => {
       // should match "ci:" or "ci(<scope>):
       // It also sometimes generates build and feat
       expect(commitMessage).toMatch(/((ci|build|feat)(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -122,7 +116,6 @@ describe("Conventional Commits", () => {
 
       // should match "docs:" or "docs(<scope>):"
       expect(commitMessage).toMatch(/(docs(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -135,7 +128,6 @@ describe("Conventional Commits", () => {
       // should match "fix:" or "fix(<scope>):"
       // Sometimes it generates refactor
       expect(commitMessage).toMatch(/((fix|refactor)(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -147,7 +139,6 @@ describe("Conventional Commits", () => {
 
       // should match "style:" or "style(<style>):"
       expect(commitMessage).toMatch(/(style|refactor)(\(.*\))?:/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -160,7 +151,6 @@ describe("Conventional Commits", () => {
       // should match "chore:" or "chore(<style>):"
       // Sometimes it generates build
       expect(commitMessage).toMatch(/((chore|build)(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 
@@ -173,7 +163,6 @@ describe("Conventional Commits", () => {
       // should match "perf:" or "perf(<style>):"
       // It also sometimes generates refactor:
       expect(commitMessage).toMatch(/((perf|refactor)(\(.*\))?):/);
-      console.log("Generated message:", commitMessage);
     }
   );
 

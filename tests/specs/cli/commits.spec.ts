@@ -27,9 +27,12 @@ describe("CLI", async () => {
     ]);
     expect(statusBefore.stdout).toBe("A  data.json");
 
-    const { stdout, exitCode } = await gitai(["--exclude", "data.json"], {
-      reject: false,
-    });
+    const { stdout, exitCode } = await gitai(
+      ["commit", "--exclude", "data.json"],
+      {
+        reject: false,
+      }
+    );
     expect(exitCode).toBe(1);
     expect(stdout).toMatch("No staged changes found.");
     await fixture.rm();
@@ -41,7 +44,7 @@ describe("CLI", async () => {
 
     await git("add", ["data.json"]);
 
-    const committing = gitai();
+    const committing = gitai(["commit"]);
     committing.stdout?.on("data", (buffer: Buffer) => {
       const stdout = buffer.toString();
       if (stdout.match("└")) {
@@ -57,9 +60,6 @@ describe("CLI", async () => {
       "--untracked-files=no",
     ]);
     expect(statusAfter.stdout).toBe("");
-
-    const { stdout: commitMessage } = await git("log", ["--oneline"]);
-    console.log("Committed with:", commitMessage);
 
     await fixture.rm();
   });
@@ -81,7 +81,7 @@ describe("CLI", async () => {
       ]);
       expect(statusBefore.stdout).toBe(" M data.json");
 
-      const committing = gitai(["--all"]);
+      const committing = gitai(["commit", "--all"]);
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
@@ -98,9 +98,6 @@ describe("CLI", async () => {
       ]);
       expect(statusAfter.stdout).toBe("");
 
-      const { stdout: commitMessage } = await git("log", ["-n1", "--oneline"]);
-      console.log("Committed with:", commitMessage);
-
       await fixture.rm();
     }
   );
@@ -115,7 +112,7 @@ describe("CLI", async () => {
     await git("add", ["data.json"]);
 
     // Generate flag should override generate config
-    const committing = gitai(["--generate", "2"]);
+    const committing = gitai(["commit", "--generate", "2"]);
 
     // Hit enter to accept the commit message
     committing.stdout?.on("data", function onPrompt(buffer: Buffer) {
@@ -138,9 +135,6 @@ describe("CLI", async () => {
     ]);
     expect(statusAfter.stdout).toBe("");
 
-    const { stdout: commitMessage } = await git("log", ["--oneline"]);
-    console.log("Committed with:", commitMessage);
-
     await fixture.rm();
   });
 
@@ -159,7 +153,7 @@ describe("CLI", async () => {
 
       await git("add", ["data.json"]);
 
-      const committing = gitai();
+      const committing = gitai(["commit"]);
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -178,7 +172,6 @@ describe("CLI", async () => {
       expect(statusAfter.stdout).toBe("");
 
       const { stdout: commitMessage } = await git("log", ["--oneline"]);
-      console.log("Committed with:", commitMessage);
       expect(commitMessage).toMatch(japanesePattern);
 
       await fixture.rm();
@@ -197,7 +190,7 @@ describe("CLI", async () => {
 
       await git("add", ["data.json"]);
 
-      const committing = gitai();
+      const committing = gitai(["commit"]);
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -216,7 +209,6 @@ describe("CLI", async () => {
       expect(statusAfter.stdout).toBe("");
 
       const { stdout: commitMessage } = await git("log", ["--oneline"]);
-      console.log("Committed with:", commitMessage);
       expect(commitMessage).toMatch(conventionalCommitPattern);
 
       await fixture.rm();
@@ -234,7 +226,7 @@ describe("CLI", async () => {
       await git("add", ["data.json"]);
 
       // Generate flag should override generate config
-      const committing = gitai(["--type", "conventional"]);
+      const committing = gitai(["commit", "--type", "conventional"]);
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -253,7 +245,6 @@ describe("CLI", async () => {
       expect(statusAfter.stdout).toBe("");
 
       const { stdout: commitMessage } = await git("log", ["--oneline"]);
-      console.log("Committed with:", commitMessage);
       expect(commitMessage).toMatch(conventionalCommitPattern);
 
       await fixture.rm();
@@ -270,7 +261,7 @@ describe("CLI", async () => {
 
       await git("add", ["data.json"]);
 
-      const committing = gitai(["--type", ""]);
+      const committing = gitai(["commit", "--type", ""]);
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -289,7 +280,6 @@ describe("CLI", async () => {
       expect(statusAfter.stdout).toBe("");
 
       const { stdout: commitMessage } = await git("log", ["--oneline"]);
-      console.log("Committed with:", commitMessage);
       expect(commitMessage).not.toMatch(conventionalCommitPattern);
 
       await fixture.rm();
@@ -306,7 +296,7 @@ describe("CLI", async () => {
 
       await git("add", ["data.json"]);
 
-      const committing = gitai([], {
+      const committing = gitai(["commit"], {
         reject: false,
       });
 
@@ -335,7 +325,7 @@ describe("CLI", async () => {
 
       await git("add", ["data.json"]);
 
-      const committing = gitai();
+      const committing = gitai(["commit"]);
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -353,9 +343,6 @@ describe("CLI", async () => {
       ]);
       expect(statusAfter.stdout).toBe("");
 
-      const { stdout: commitMessage } = await git("log", ["--oneline"]);
-      console.log("Committed with:", commitMessage);
-
       await fixture.rm();
     });
 
@@ -365,7 +352,7 @@ describe("CLI", async () => {
 
       await git("add", ["data.json"]);
 
-      const committing = gitai([], {
+      const committing = gitai(["commit"], {
         env: {
           HTTP_PROXY: "http://localhost:8888",
         },
@@ -386,9 +373,6 @@ describe("CLI", async () => {
         "--untracked-files=no",
       ]);
       expect(statusAfter.stdout).toBe("");
-
-      const { stdout: commitMessage } = await git("log", ["--oneline"]);
-      console.log("Committed with:", commitMessage);
 
       await fixture.rm();
     });
