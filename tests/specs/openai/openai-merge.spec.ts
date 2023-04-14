@@ -3,10 +3,9 @@ import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { describe, it, beforeAll, expect } from "vitest";
 import { autoMergeFile } from "../../../src/utils/openai-merge.js";
+import { assertOpenAiToken } from "../../utils.js";
 
-if (process.env.OPENAI_KEY) {
-  throw new Error("OPENAI_KEY is not defined");
-}
+assertOpenAiToken();
 
 const OPENAI_KEY: string = process.env.OPENAI_KEY ?? "";
 

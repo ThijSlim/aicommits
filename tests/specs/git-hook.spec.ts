@@ -6,12 +6,12 @@ import {
   files,
 } from "../utils.js";
 
-describe("Git hook", () => {
-  assertOpenAiToken();
+assertOpenAiToken();
 
+describe("Git hook", () => {
   it.concurrent("errors when not in Git repo", async () => {
-    const { fixture, aicommits } = await createFixture(files);
-    const { exitCode, stderr } = await aicommits(["hook", "install"], {
+    const { fixture, gitai } = await createFixture(files);
+    const { exitCode, stderr } = await gitai(["hook", "install"], {
       reject: false,
     });
 
@@ -22,10 +22,10 @@ describe("Git hook", () => {
   });
 
   it.concurrent("Commits", async () => {
-    const { fixture, aicommits } = await createFixture(files);
+    const { fixture, gitai } = await createFixture(files);
     const git = await createGit(fixture.path);
 
-    const { stdout } = await aicommits(["hook", "install"]);
+    const { stdout } = await gitai(["hook", "install"]);
     expect(stdout).toMatch("Hook installed");
 
     await git("add", ["data.json"]);

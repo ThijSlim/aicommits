@@ -3,18 +3,18 @@ import { createFixture, createGit } from "../../utils.js";
 
 describe("Error cases", async () => {
   it.concurrent("Fails on non-Git project", async () => {
-    const { fixture, aicommits } = await createFixture();
-    const { stdout, exitCode } = await aicommits([], { reject: false });
+    const { fixture, gitai } = await createFixture();
+    const { stdout, exitCode } = await gitai([], { reject: false });
     expect(exitCode).toBe(1);
     expect(stdout).toMatch("The current directory must be a Git repository!");
     await fixture.rm();
   });
 
   it.concurrent("Fails on no staged files", async () => {
-    const { fixture, aicommits } = await createFixture();
+    const { fixture, gitai } = await createFixture();
     await createGit(fixture.path);
 
-    const { stdout, exitCode } = await aicommits([], { reject: false });
+    const { stdout, exitCode } = await gitai([], { reject: false });
     expect(exitCode).toBe(1);
     expect(stdout).toMatch(
       "No staged changes found. Stage your changes manually, or automatically stage all changes with the `--all` flag."

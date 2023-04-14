@@ -1,6 +1,6 @@
 import { cli } from "cleye";
 import { description, version } from "../package.json";
-import aicommits from "./commands/aicommits.js";
+import gitai from "./commands/gitai.js";
 import prepareCommitMessageHook from "./commands/prepare-commit-msg-hook.js";
 import configCommand from "./commands/config.js";
 import mergeCommand from "./commands/merge.js";
@@ -10,7 +10,7 @@ const rawArgv = process.argv.slice(2);
 
 cli(
   {
-    name: "aicommits",
+    name: "gitai",
 
     version,
 
@@ -57,7 +57,7 @@ cli(
     if (isCalledFromGitHook) {
       prepareCommitMessageHook();
     } else {
-      aicommits(
+      gitai(
         argv.flags.generate,
         argv.flags.exclude,
         argv.flags.all,

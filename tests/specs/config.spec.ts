@@ -7,9 +7,9 @@ describe("config", async () => {
   const openAiToken = "OPENAI_KEY=sk-abc";
 
   it.concurrent("set unknown config file", async () => {
-    const { aicommits } = await createFixture();
+    const { gitai } = await createFixture();
 
-    const { stderr } = await aicommits(["config", "set", "UNKNOWN=1"], {
+    const { stderr } = await gitai(["config", "set", "UNKNOWN=1"], {
       reject: false,
     });
 
@@ -17,9 +17,9 @@ describe("config", async () => {
   });
 
   it.concurrent("set invalid OPENAI_KEY", async () => {
-    const { aicommits } = await createFixture();
+    const { gitai } = await createFixture();
 
-    const { stderr } = await aicommits(["config", "set", "OPENAI_KEY=abc"], {
+    const { stderr } = await gitai(["config", "set", "OPENAI_KEY=abc"], {
       reject: false,
     });
 
@@ -29,33 +29,33 @@ describe("config", async () => {
   });
 
   it.concurrent("set config file", async () => {
-    const { fixture, aicommits } = await createFixture();
-    const configPath = path.join(fixture.path, ".aicommits");
+    const { fixture, gitai } = await createFixture();
+    const configPath = path.join(fixture.path, ".gitai");
 
-    await aicommits(["config", "set", openAiToken]);
+    await gitai(["config", "set", openAiToken]);
 
     const configFile = await fs.readFile(configPath, "utf8");
     expect(configFile).toMatch(openAiToken);
   });
 
   it.concurrent("get config file", async () => {
-    const { aicommits } = await createFixture();
+    const { gitai } = await createFixture();
 
-    await aicommits(["config", "set", openAiToken]);
-    const { stdout } = await aicommits(["config", "get", "OPENAI_KEY"]);
+    await gitai(["config", "set", openAiToken]);
+    const { stdout } = await gitai(["config", "get", "OPENAI_KEY"]);
 
     expect(stdout).toBe(openAiToken);
   });
 
   it.concurrent("reading unknown config", async () => {
-    const { fixture, aicommits } = await createFixture();
-    const configPath = path.join(fixture.path, ".aicommits");
+    const { fixture, gitai } = await createFixture();
+    const configPath = path.join(fixture.path, ".gitai");
 
-    await aicommits(["config", "set", openAiToken]);
+    await gitai(["config", "set", openAiToken]);
 
     await fs.appendFile(configPath, "UNKNOWN=1");
 
-    const { stdout, stderr } = await aicommits(["config", "get", "UNKNOWN"], {
+    const { stdout, stderr } = await gitai(["config", "get", "UNKNOWN"], {
       reject: false,
     });
 
@@ -64,9 +64,9 @@ describe("config", async () => {
   });
 
   it.concurrent("setting invalid timeout config", async () => {
-    const { aicommits } = await createFixture();
+    const { gitai } = await createFixture();
 
-    const { stderr } = await aicommits(["config", "set", "timeout=abc"], {
+    const { stderr } = await gitai(["config", "set", "timeout=abc"], {
       reject: false,
     });
 
@@ -74,11 +74,11 @@ describe("config", async () => {
   });
 
   it.concurrent("setting valid timeout config", async () => {
-    const { fixture, aicommits } = await createFixture();
-    const configPath = path.join(fixture.path, ".aicommits");
+    const { fixture, gitai } = await createFixture();
+    const configPath = path.join(fixture.path, ".gitai");
 
     const timeout = "timeout=20000";
-    await aicommits(["config", "set", timeout]);
+    await gitai(["config", "set", timeout]);
 
     const configFile = await fs.readFile(configPath, "utf8");
 

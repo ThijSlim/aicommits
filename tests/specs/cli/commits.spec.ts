@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { createFixture, createGit, files } from "../../utils.js";
+import {
+  assertOpenAiToken,
+  createFixture,
+  createGit,
+  files,
+} from "../../utils.js";
 
 if (process.platform === "win32") {
   // https://github.com/nodejs/node/issues/31409
@@ -8,13 +13,11 @@ if (process.platform === "win32") {
   );
 }
 
-if (process.env.OPENAI_KEY) {
-  throw new Error("OPENAI_KEY is not defined");
-}
+assertOpenAiToken();
 
 describe("CLI", async () => {
   it.concurrent("Excludes files", async () => {
-    const { fixture, aicommits } = await createFixture(files);
+    const { fixture, gitai } = await createFixture(files);
     const git = await createGit(fixture.path);
 
     await git("add", ["data.json"]);
@@ -24,7 +27,7 @@ describe("CLI", async () => {
     ]);
     expect(statusBefore.stdout).toBe("A  data.json");
 
-    const { stdout, exitCode } = await aicommits(["--exclude", "data.json"], {
+    const { stdout, exitCode } = await gitai(["--exclude", "data.json"], {
       reject: false,
     });
     expect(exitCode).toBe(1);
@@ -33,12 +36,12 @@ describe("CLI", async () => {
   });
 
   it.concurrent("Generates commit message", async () => {
-    const { fixture, aicommits } = await createFixture(files);
+    const { fixture, gitai } = await createFixture(files);
     const git = await createGit(fixture.path);
 
     await git("add", ["data.json"]);
 
-    const committing = aicommits();
+    const committing = gitai();
     committing.stdout?.on("data", (buffer: Buffer) => {
       const stdout = buffer.toString();
       if (stdout.match("└")) {
@@ -64,7 +67,7 @@ describe("CLI", async () => {
   it.concurrent(
     "Accepts --all flag, staging all changes before commit",
     async () => {
-      const { fixture, aicommits } = await createFixture(files);
+      const { fixture, gitai } = await createFixture(files);
       const git = await createGit(fixture.path);
 
       await git("add", ["data.json"]);
@@ -78,7 +81,7 @@ describe("CLI", async () => {
       ]);
       expect(statusBefore.stdout).toBe(" M data.json");
 
-      const committing = aicommits(["--all"]);
+      const committing = gitai(["--all"]);
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
         if (stdout.match("└")) {
@@ -103,16 +106,16 @@ describe("CLI", async () => {
   );
 
   it.concurrent("Accepts --generate flag, overriding config", async () => {
-    const { fixture, aicommits } = await createFixture({
+    const { fixture, gitai } = await createFixture({
       ...files,
-      ".aicommits": `${files[".aicommits"]}\ngenerate=4`,
+      ".gitai": `${files[".gitai"]}\ngenerate=4`,
     });
     const git = await createGit(fixture.path);
 
     await git("add", ["data.json"]);
 
     // Generate flag should override generate config
-    const committing = aicommits(["--generate", "2"]);
+    const committing = gitai(["--generate", "2"]);
 
     // Hit enter to accept the commit message
     committing.stdout?.on("data", function onPrompt(buffer: Buffer) {
@@ -148,15 +151,15 @@ describe("CLI", async () => {
       const japanesePattern =
         /[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\uFF00-\uFF9F\u4E00-\u9FAF\u3400-\u4DBF]/;
 
-      const { fixture, aicommits } = await createFixture({
+      const { fixture, gitai } = await createFixture({
         ...files,
-        ".aicommits": `${files[".aicommits"]}\nlocale=ja`,
+        ".gitai": `${files[".gitai"]}\nlocale=ja`,
       });
       const git = await createGit(fixture.path);
 
       await git("add", ["data.json"]);
 
-      const committing = aicommits();
+      const committing = gitai();
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -186,15 +189,15 @@ describe("CLI", async () => {
     it.concurrent("Conventional commits", async () => {
       const conventionalCommitPattern =
         /(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test):\s/;
-      const { fixture, aicommits } = await createFixture({
+      const { fixture, gitai } = await createFixture({
         ...files,
-        ".aicommits": `${files[".aicommits"]}\ntype=conventional`,
+        ".gitai": `${files[".gitai"]}\ntype=conventional`,
       });
       const git = await createGit(fixture.path);
 
       await git("add", ["data.json"]);
 
-      const committing = aicommits();
+      const committing = gitai();
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -222,16 +225,16 @@ describe("CLI", async () => {
     it.concurrent("Accepts --type flag, overriding config", async () => {
       const conventionalCommitPattern =
         /(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test):\s/;
-      const { fixture, aicommits } = await createFixture({
+      const { fixture, gitai } = await createFixture({
         ...files,
-        ".aicommits": `${files[".aicommits"]}\ntype=other`,
+        ".gitai": `${files[".gitai"]}\ntype=other`,
       });
       const git = await createGit(fixture.path);
 
       await git("add", ["data.json"]);
 
       // Generate flag should override generate config
-      const committing = aicommits(["--type", "conventional"]);
+      const committing = gitai(["--type", "conventional"]);
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -259,15 +262,15 @@ describe("CLI", async () => {
     it.concurrent("Accepts empty --type flag", async () => {
       const conventionalCommitPattern =
         /(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test):\s/;
-      const { fixture, aicommits } = await createFixture({
+      const { fixture, gitai } = await createFixture({
         ...files,
-        ".aicommits": `${files[".aicommits"]}\ntype=conventional`,
+        ".gitai": `${files[".gitai"]}\ntype=conventional`,
       });
       const git = await createGit(fixture.path);
 
       await git("add", ["data.json"]);
 
-      const committing = aicommits(["--type", ""]);
+      const committing = gitai(["--type", ""]);
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -295,15 +298,15 @@ describe("CLI", async () => {
 
   describe("proxy", () => {
     it.concurrent("Fails on invalid proxy", async () => {
-      const { fixture, aicommits } = await createFixture({
+      const { fixture, gitai } = await createFixture({
         ...files,
-        ".aicommits": `${files[".aicommits"]}\nproxy=http://localhost:1234`,
+        ".gitai": `${files[".gitai"]}\nproxy=http://localhost:1234`,
       });
       const git = await createGit(fixture.path);
 
       await git("add", ["data.json"]);
 
-      const committing = aicommits([], {
+      const committing = gitai([], {
         reject: false,
       });
 
@@ -324,15 +327,15 @@ describe("CLI", async () => {
     });
 
     it.concurrent("Connects with config", async () => {
-      const { fixture, aicommits } = await createFixture({
+      const { fixture, gitai } = await createFixture({
         ...files,
-        ".aicommits": `${files[".aicommits"]}\nproxy=http://localhost:8888`,
+        ".gitai": `${files[".gitai"]}\nproxy=http://localhost:8888`,
       });
       const git = await createGit(fixture.path);
 
       await git("add", ["data.json"]);
 
-      const committing = aicommits();
+      const committing = gitai();
 
       committing.stdout?.on("data", (buffer: Buffer) => {
         const stdout = buffer.toString();
@@ -357,12 +360,12 @@ describe("CLI", async () => {
     });
 
     it.concurrent("Connects with env variable", async () => {
-      const { fixture, aicommits } = await createFixture(files);
+      const { fixture, gitai } = await createFixture(files);
       const git = await createGit(fixture.path);
 
       await git("add", ["data.json"]);
 
-      const committing = aicommits([], {
+      const committing = gitai([], {
         env: {
           HTTP_PROXY: "http://localhost:8888",
         },

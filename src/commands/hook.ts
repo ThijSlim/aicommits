@@ -44,7 +44,7 @@ export default command(
             return;
           }
           throw new KnownError(
-            `A different ${hookName} hook seems to be installed. Please remove it before installing aicommits.`
+            `A different ${hookName} hook seems to be installed. Please remove it before installing gitai.`
           );
         }
 

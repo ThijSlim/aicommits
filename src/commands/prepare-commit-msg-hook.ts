@@ -27,7 +27,7 @@ export default () =>
       return;
     }
 
-    intro(bgCyan(black(" aicommits ")));
+    intro(bgCyan(black(" gitai ")));
 
     const { env } = process;
     const config = await getConfig({

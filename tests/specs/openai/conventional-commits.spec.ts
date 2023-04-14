@@ -5,10 +5,9 @@ import { describe, it, beforeAll, expect } from "vitest";
 
 import { generateCommitMessage } from "../../../src/utils/openai.js";
 import type { ValidConfig } from "../../../src/utils/config.js";
+import { assertOpenAiToken } from "../../utils.js";
 
-if (process.env.OPENAI_KEY) {
-  throw new Error("OPENAI_KEY is not defined");
-}
+assertOpenAiToken();
 
 const OPENAI_KEY: string = process.env.OPENAI_KEY ?? "";
 
