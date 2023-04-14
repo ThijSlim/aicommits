@@ -35,7 +35,7 @@ body:
         ```sh
         npx envinfo --system --binaries
         ```
-        
+
         This information is used to for reproduction and debugging.
       placeholder: |
         System:

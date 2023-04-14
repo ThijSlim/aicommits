@@ -1,214 +1,215 @@
-import { readFile } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import {
-	describe, it, beforeAll, expect,
-} from 'vitest';
+import { readFile } from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+import { describe, it, beforeAll, expect } from "vitest";
 
-import { generateCommitMessage } from '../../../src/utils/openai.js';
-import type { ValidConfig } from '../../../src/utils/config.js';
+import { generateCommitMessage } from "../../../src/utils/openai.js";
+import type { ValidConfig } from "../../../src/utils/config.js";
 
 const { OPENAI_KEY } = process.env;
 
-describe('Conventional Commits', () => {
-	beforeAll(async () => {
-		if (process.platform === 'win32') {
-			// https://github.com/nodejs/node/issues/31409
-			console.warn(
-				'Skipping tests on Windows because Node.js spawn cant open TTYs',
-			);
-			return;
-		}
+describe("Conventional Commits", () => {
+  beforeAll(async () => {
+    if (process.platform === "win32") {
+      // https://github.com/nodejs/node/issues/31409
+      console.warn(
+        "Skipping tests on Windows because Node.js spawn cant open TTYs"
+      );
 
-		if (!OPENAI_KEY) {
-			console.warn(
-				'⚠️  process.env.OPENAI_KEY is necessary to run these tests. Skipping...',
-			);
-		}
-	});
+      
+      return;
+    }
 
-	it.concurrent(
-		'Should not translate conventional commit type to Japanase when locale config is set to japanese',
-		async () => {
-			const japaneseConventionalCommitPattern = /(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(.*\))?: [\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\uFF00-\uFF9F\u4E00-\u9FAF\u3400-\u4DBF]/;
+    if (!OPENAI_KEY) {
+      console.warn(
+        "⚠️  process.env.OPENAI_KEY is necessary to run these tests. Skipping..."
+      );
+    }
+  });
 
-			const gitDiff = await readDiffFromFile('new-feature.txt');
+  it.concurrent(
+    "Should not translate conventional commit type to Japanase when locale config is set to japanese",
+    async () => {
+      const japaneseConventionalCommitPattern =
+        /(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\(.*\))?: [\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\uFF00-\uFF9F\u4E00-\u9FAF\u3400-\u4DBF]/;
 
-			const commitMessage = await runGenerateCommitMessage(gitDiff, {
-				locale: 'ja',
-			});
+      const gitDiff = await readDiffFromFile("new-feature.txt");
 
-			expect(commitMessage).toMatch(japaneseConventionalCommitPattern);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+      const commitMessage = await runGenerateCommitMessage(gitDiff, {
+        locale: "ja",
+      });
 
-	it.concurrent(
-		'Should use "feat:" conventional commit when change relate to adding a new feature',
-		async () => {
-			const gitDiff = await readDiffFromFile('new-feature.txt');
+      expect(commitMessage).toMatch(japaneseConventionalCommitPattern);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+  it.concurrent(
+    'Should use "feat:" conventional commit when change relate to adding a new feature',
+    async () => {
+      const gitDiff = await readDiffFromFile("new-feature.txt");
 
-			// should match "feat:" or "feat(<scope>):"
-			expect(commitMessage).toMatch(/(feat(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "refactor:" conventional commit when change relate to code refactoring',
-		async () => {
-			const gitDiff = await readDiffFromFile('code-refactoring.txt');
+      // should match "feat:" or "feat(<scope>):"
+      expect(commitMessage).toMatch(/(feat(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+  it.concurrent(
+    'Should use "refactor:" conventional commit when change relate to code refactoring',
+    async () => {
+      const gitDiff = await readDiffFromFile("code-refactoring.txt");
 
-			// should match "refactor:" or "refactor(<scope>):"
-			expect(commitMessage).toMatch(/(refactor(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "test:" conventional commit when change relate to testing a React application',
-		async () => {
-			const gitDiff = await readDiffFromFile('testing-react-application.txt');
+      // should match "refactor:" or "refactor(<scope>):"
+      expect(commitMessage).toMatch(/(refactor(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+  it.concurrent(
+    'Should use "test:" conventional commit when change relate to testing a React application',
+    async () => {
+      const gitDiff = await readDiffFromFile("testing-react-application.txt");
 
-			// should match "test:" or "test(<scope>):"
-			expect(commitMessage).toMatch(/(test(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "build:" conventional commit when change relate to github action build pipeline',
-		async () => {
-			const gitDiff = await readDiffFromFile(
-				'github-action-build-pipeline.txt',
-			);
+      // should match "test:" or "test(<scope>):"
+      expect(commitMessage).toMatch(/(test(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+  it.concurrent(
+    'Should use "build:" conventional commit when change relate to github action build pipeline',
+    async () => {
+      const gitDiff = await readDiffFromFile(
+        "github-action-build-pipeline.txt"
+      );
 
-			// should match "build:" or "build(<scope>):"
-			expect(commitMessage).toMatch(/(build(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "(ci|build):" conventional commit when change relate to continious integration',
-		async () => {
-			const gitDiff = await readDiffFromFile('continous-integration.txt');
+      // should match "build:" or "build(<scope>):"
+      expect(commitMessage).toMatch(/(build(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+  it.concurrent(
+    'Should use "(ci|build):" conventional commit when change relate to continious integration',
+    async () => {
+      const gitDiff = await readDiffFromFile("continous-integration.txt");
 
-			// should match "ci:" or "ci(<scope>):
-			// It also sometimes generates build and feat
-			expect(commitMessage).toMatch(/((ci|build|feat)(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "docs:" conventional commit when change relate to documentation changes',
-		async () => {
-			const gitDiff = await readDiffFromFile('documentation-changes.txt');
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+      // should match "ci:" or "ci(<scope>):
+      // It also sometimes generates build and feat
+      expect(commitMessage).toMatch(/((ci|build|feat)(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			// should match "docs:" or "docs(<scope>):"
-			expect(commitMessage).toMatch(/(docs(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+  it.concurrent(
+    'Should use "docs:" conventional commit when change relate to documentation changes',
+    async () => {
+      const gitDiff = await readDiffFromFile("documentation-changes.txt");
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "fix:" conventional commit when change relate to fixing code',
-		async () => {
-			const gitDiff = await readDiffFromFile('fix-nullpointer-exception.txt');
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+      // should match "docs:" or "docs(<scope>):"
+      expect(commitMessage).toMatch(/(docs(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			// should match "fix:" or "fix(<scope>):"
-			// Sometimes it generates refactor
-			expect(commitMessage).toMatch(/((fix|refactor)(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+  it.concurrent(
+    'Should use "fix:" conventional commit when change relate to fixing code',
+    async () => {
+      const gitDiff = await readDiffFromFile("fix-nullpointer-exception.txt");
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "style:" conventional commit when change relate to code style improvements',
-		async () => {
-			const gitDiff = await readDiffFromFile('code-style.txt');
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+      // should match "fix:" or "fix(<scope>):"
+      // Sometimes it generates refactor
+      expect(commitMessage).toMatch(/((fix|refactor)(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			// should match "style:" or "style(<style>):"
-			expect(commitMessage).toMatch(/(style|refactor)(\(.*\))?:/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+  it.concurrent(
+    'Should use "style:" conventional commit when change relate to code style improvements',
+    async () => {
+      const gitDiff = await readDiffFromFile("code-style.txt");
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "chore:" conventional commit when change relate to a chore or maintenance',
-		async () => {
-			const gitDiff = await readDiffFromFile('chore.txt');
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+      // should match "style:" or "style(<style>):"
+      expect(commitMessage).toMatch(/(style|refactor)(\(.*\))?:/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			// should match "chore:" or "chore(<style>):"
-			// Sometimes it generates build
-			expect(commitMessage).toMatch(/((chore|build)(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+  it.concurrent(
+    'Should use "chore:" conventional commit when change relate to a chore or maintenance',
+    async () => {
+      const gitDiff = await readDiffFromFile("chore.txt");
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	it.concurrent(
-		'Should use "perf:" conventional commit when change relate to a performance improvement',
-		async () => {
-			const gitDiff = await readDiffFromFile('performance-improvement.txt');
-			const commitMessage = await runGenerateCommitMessage(gitDiff);
+      // should match "chore:" or "chore(<style>):"
+      // Sometimes it generates build
+      expect(commitMessage).toMatch(/((chore|build)(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-			// should match "perf:" or "perf(<style>):"
-			// It also sometimes generates refactor:
-			expect(commitMessage).toMatch(/((perf|refactor)(\(.*\))?):/);
-			console.log('Generated message:', commitMessage);
-		},
-	);
+  it.concurrent(
+    'Should use "perf:" conventional commit when change relate to a performance improvement',
+    async () => {
+      const gitDiff = await readDiffFromFile("performance-improvement.txt");
+      const commitMessage = await runGenerateCommitMessage(gitDiff);
 
-	async function runGenerateCommitMessage(
-		gitDiff: string,
-		configOverrides: Partial<ValidConfig> = {},
-	): Promise<string> {
-		const config = {
-			locale: 'en',
-			type: 'conventional',
-			generate: 1,
-			...configOverrides,
-		} as ValidConfig;
+      // should match "perf:" or "perf(<style>):"
+      // It also sometimes generates refactor:
+      expect(commitMessage).toMatch(/((perf|refactor)(\(.*\))?):/);
+      console.log("Generated message:", commitMessage);
+    }
+  );
 
-		const commitMessages = await generateCommitMessage(
-			OPENAI_KEY!,
-			'gpt-3.5-turbo',
-			config.locale,
-			gitDiff,
-			config.generate,
-			config.type,
-			10_000,
-		);
+  async function runGenerateCommitMessage(
+    gitDiff: string,
+    configOverrides: Partial<ValidConfig> = {}
+  ): Promise<string> {
+    const config = {
+      locale: "en",
+      type: "conventional",
+      generate: 1,
+      ...configOverrides,
+    } as ValidConfig;
 
-		return commitMessages[0];
-	}
+    const commitMessages = await generateCommitMessage(
+      OPENAI_KEY!,
+      "gpt-3.5-turbo",
+      config.locale,
+      gitDiff,
+      config.generate,
+      config.type,
+      10_000
+    );
 
-	/*
-	 *	See ./diffs/README.md in order to generate diff files
-	 */
-	async function readDiffFromFile(filename: string): Promise<string> {
-		const __filename = fileURLToPath(import.meta.url);
-		const __dirname = path.dirname(__filename);
-		const gitDiff = await readFile(
-			path.resolve(__dirname, `./diff-fixtures/${filename}`),
-			'utf8',
-		);
+    return commitMessages[0];
+  }
 
-		return gitDiff;
-	}
+  /*
+   *	See ./diffs/README.md in order to generate diff files
+   */
+  async function readDiffFromFile(filename: string): Promise<string> {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const gitDiff = await readFile(
+      path.resolve(__dirname, `./diff-fixtures/${filename}`),
+      "utf8"
+    );
+
+    return gitDiff;
+  }
 });
